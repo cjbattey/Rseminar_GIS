@@ -7,7 +7,7 @@
 #install.packages('raster')
 #install.packages('rgeos')
 #install.packages('RColorBrewer')
-library(raster);library(ggplot2);library(RColorBrewer);library(rgeos)
+library(raster);library(ggplot2);library(RColorBrewer);library(rgeos);library(data.table)
 
 ################################ Shapefiles, rasters, and simple GIS data summaries in R ##################################
 #R is great for *some* GIS tasks. If you're exploring data and want to quickly demo a visalization or click around a map, try
@@ -61,7 +61,9 @@ ggplot()+coord_map(xlim=c(-150,-105),ylim=c(25,65))+theme_bw()+
   geom_polygon(data=admin.df,aes(x=long,y=lat,group=group),fill=NA,col="black")
 #pretty! 
 
-####### Regional species diversity ######
+#################################################################################
+##################### Loop 1: Regional species diversity heatmap ################
+#################################################################################
 #let's build a raster where the cell value equals the number of species within a clade that occur in a given area. 
 ##build an empty raster on a lat/long grid at 10min resolution
 r <- raster(xmn=-180, xmx=180, ymn=-90, ymx=90, res=1/6, vals=0)
@@ -88,8 +90,7 @@ plot(n.species)
 ###########################################################################
 ############## loop #2: visualizing hummingbird migration #################
 ###########################################################################
-
-#read in rufous hummingbird eBird reports and a shorelines map
+#read in rufous hummingbird eBird reports and a country outlines map
 ruhu <- read.delim("ebd_rufhum_relNov-2014/ebd_rufhum_relNov-2014.txt")
 ruhu$date <- as.Date(ruhu$OBSERVATION.DATE,"%m/%d/%Y")
 ruhu$month <- as.numeric(substr(ruhu$date,6,7))
@@ -113,8 +114,9 @@ for(i in c(1:12)){
   locs <- SpatialPoints(data.frame(a$LONGITUDE,a$LATITUDE))
   log.frequency <- log(rasterize(locs,r.ruhu,fun="count")/effort)
   plot(log.frequency,col=brewer.pal(n=6,name="YlOrRd"),legend=F,axes=F,breaks=c(-5,-1,0,1,2,3),
-       main=paste(a$monthName[1]),xaxs="i", yaxs="i")+plot(map,col=NA,add=TRUE)+mtext("Rufous Hummingbird Report Frequency", 
-                                                                                      outer = TRUE,side = 3,cex = 1.2,line = 1)
+       main=paste(a$monthName[1]),xaxs="i", yaxs="i")+
+          plot(map,col=NA,add=TRUE)+
+          mtext("Rufous Hummingbird Report Frequency",outer = TRUE,side = 3,cex = 1.2,line = 1)
 }
 dev.off()
 par(old.par)
