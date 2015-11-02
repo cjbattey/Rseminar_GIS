@@ -98,7 +98,6 @@ ruhu$monthName <- months(ruhu$date)
 ruhuW <- subset(ruhu,LONGITUDE < -96)
 map <- crop(shapefile("cntry06/cntry06.shp"),c(-145,-60,10,62))
 
-  
 #read in an effort raster (total # reports per grid cell at 10 min resolution)
 r <- raster(xmn=-180, xmx=180, ymn=-90, ymx=90, res=1, vals=0)
 effort <- crop(resample(raster("effort.tif"),r),c(-145,-60,10,62))
@@ -130,6 +129,24 @@ for(i in c(1:12)){
   plot(log.frequency,col=brewer.pal(n=6,name="YlOrRd"),legend=F,axes=T,breaks=c(-5,-1,0,1,2,3))+plot(map,col=NA,add=TRUE)
   dev.off()
 }
+
+ggplot()+coord_map()+theme_bw()+
+  geom_polygon(data=map,aes(x=long,y=lat,group=group),fill=NA,col="black")+
+  geom_point(data=ruhu,aes(x=LONGITUDE,y=LATITUDE))
+
+ggplot()+coord_map()+theme_bw()+
+  geom_polygon(data=map,aes(x=long,y=lat,group=group),fill=NA,col="black")+
+  geom_bin2d(data=ruhu,aes(x=LONGITUDE,y=LATITUDE))
+
+ggplot()+coord_map()+theme_bw()+
+  geom_polygon(data=map,aes(x=long,y=lat,group=group),fill=NA,col="black")+
+  stat_summary2d(data=ruhu,aes(x=LONGITUDE,y=LATITUDE,z=month,fun="mean"))
+
+ggplot()+coord_map()+theme_bw()+
+  geom_polygon(data=map,aes(x=long,y=lat,group=group),fill=NA,col="black")+
+  stat_density2d(data=ruhu,aes(x=LONGITUDE,y=LATITUDE))
+
+
 
 
 
