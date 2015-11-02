@@ -1,14 +1,13 @@
 #######################################################################
 ##################### GIS in R - R Seminar Fall 2015 ##################
 #######################################################################
-setwd("~/Desktop/Rseminar_GIS/")
 #install.packages('ggplot2')
 #install.packages('sp')
 #install.pacakges('rgdal')
 #install.packages('raster')
 #install.packages('rgeos')
 #install.packages('RColorBrewer')
-library(raster);library(ggplot2);library(RColorBrewer)
+library(raster);library(ggplot2);library(RColorBrewer);library(rgeos)
 
 ################################ Shapefiles, rasters, and simple GIS data summaries in R ##################################
 #R is great for *some* GIS tasks. If you're exploring data and want to quickly demo a visalization or click around a map, try
@@ -32,22 +31,26 @@ anhu.b <- anhu[anhu@data$SEASONAL == 1,]
 ruhu.b <- ruhu[ruhu@data$SEASONAL == 2,]
 plot(anhu.b)
 
-#change projections with spTransform. 3395 is a mercator projection, 4087 is equidistant cylindrical. 
-anhu.proj <- spTransform(anhu.b, CRS("+init=epsg:3395"))
-
-#standard vector functions are all available 
+#standard vector functions are all available through the rgeos package
 plot(union(anhu.b,ruhu.b))
 plot(intersect(anhu.b,ruhu.b))
+
+#change projections with spTransform. 3395 is a mercator projection, 4087 is equidistant cylindrical. 
+anhu.proj <- spTransform(anhu.b, CRS("+init=epsg:3395"))
+ruhu.proj <- spTransform(ruhu.b,CRS("+init=epsg:3395"))
 
 #Buffering. If the spatial object is projected in a lat/long system, the unit of width is meters. Otherwise, map units. 
 plot(buffer(anhu.proj,width=1e4))
 
-####Plotting shapefiles with ggplot2
+#check out the area of some shapefiles
+gArea(buffer(anhu.proj,width=1e4))
+gArea(anhu.proj)/gArea(ruhu.proj)
+
+#######Plotting shapefiles with ggplot2: 
 #Convert sp objects to dataframes with fortify()
 anhu.df <- fortify(anhu.b)
 ruhu.df <- fortify(ruhu.b)
-#load in a country outlines file and crop to the plot extent (ggplot does not deal well with polygons including points 
-#outside the plotting window extents)
+#load in a country outlines file and crop to the plot extent 
 map <- shapefile("cntry06/cntry06.shp")
 admin <- crop(map,c(-150,-105,25,65))
 admin.df <- fortify(admin)
@@ -62,7 +65,7 @@ ggplot()+coord_map(xlim=c(-150,-105),ylim=c(25,65))+theme_bw()+
 #let's build a raster where the cell value equals the number of species within a clade that occur in a given area. 
 ##build an empty raster on a lat/long grid at 10min resolution
 r <- raster(xmn=-180, xmx=180, ymn=-90, ymx=90, res=1/6, vals=0)
-
+west <- crop(r,c(-128,-105,26,52))
 #test out rasterizing with just the anhu range.
 anhu.r <- rasterize(anhu.b,west)
 plot(anhu.r)
