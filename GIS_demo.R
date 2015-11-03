@@ -130,25 +130,6 @@ for(i in c(1:12)){
   dev.off()
 }
 
-ggplot()+coord_map()+theme_bw()+
-  geom_polygon(data=map,aes(x=long,y=lat,group=group),fill=NA,col="black")+
-  geom_point(data=ruhu,aes(x=LONGITUDE,y=LATITUDE))
-
-ggplot()+coord_map()+theme_bw()+
-  geom_polygon(data=map,aes(x=long,y=lat,group=group),fill=NA,col="black")+
-  geom_bin2d(data=ruhu,aes(x=LONGITUDE,y=LATITUDE))
-
-ggplot()+coord_map()+theme_bw()+
-  geom_polygon(data=map,aes(x=long,y=lat,group=group),fill=NA,col="black")+
-  stat_summary2d(data=ruhu,aes(x=LONGITUDE,y=LATITUDE,z=month,fun="mean"))
-
-ggplot()+coord_map()+theme_bw()+
-  geom_polygon(data=map,aes(x=long,y=lat,group=group),fill=NA,col="black")+
-  stat_density2d(data=ruhu,aes(x=LONGITUDE,y=LATITUDE))
-
-
-
-
 
 
 
